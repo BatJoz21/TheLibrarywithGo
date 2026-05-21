@@ -12,19 +12,20 @@ type Book struct {
 	Genre       string    `binding:"required"`
 	Description string    `binding:"required"`
 	Published   time.Time `binding:"required"`
+	LendStatus  bool
 	UserID      int
 }
 
 func (b Book) Save() error {
-	query := `INSERT INTO books(title, genre, description, published, user_id) VALUES
-	(?, ?, ?, ?, ?)`
+	query := `INSERT INTO books(title, genre, description, published, lend_status, user_id) VALUES
+	(?, ?, ?, ?, ?, ?)`
 	stmt, err := db.DB.Prepare(query)
 	if err != nil {
 		return err
 	}
 	defer stmt.Close()
 
-	result, err := stmt.Exec(b.Title, b.Genre, b.Description, b.Published, b.UserID)
+	result, err := stmt.Exec(b.Title, b.Genre, b.Description, b.Published, b.LendStatus, b.UserID)
 	if err != nil {
 		return err
 	}
@@ -74,7 +75,7 @@ func GetAllBooks() ([]Book, error) {
 	var books []Book
 	for rows.Next() {
 		var book Book
-		err = rows.Scan(&book.ID, &book.Title, &book.Genre, &book.Description, &book.Published, &book.UserID)
+		err = rows.Scan(&book.ID, &book.Title, &book.Genre, &book.Description, &book.Published, &book.LendStatus, &book.UserID)
 		if err != nil {
 			return nil, err
 		}

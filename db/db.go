@@ -34,6 +34,7 @@ func createTables() {
 		genre VARCHAR(150) NOT NULL,
 		description TINYTEXT,
 		published DATETIME NOT NULL,
+		lend_status BOOLEAN NOT NULL,
 		user_id INTEGER
 	)`
 

@@ -42,6 +42,7 @@ func enterNewBook(context *gin.Context) {
 	}
 
 	book.UserID = 1
+	book.LendStatus = false
 
 	err = book.Save()
 	if err != nil {
