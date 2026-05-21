@@ -64,6 +64,24 @@ func (book Book) Delete() error {
 	return err
 }
 
+func UpdateLendStatus(status bool, id int64) error {
+	_, err := GetBookByID(id)
+	if err != nil {
+		return err
+	}
+
+	query := `UPDATE books SET lend_status = ? WHERE id = ?`
+	stmt, err := db.DB.Prepare(query)
+	if err != nil {
+		return err
+	}
+	defer stmt.Close()
+
+	_, err = stmt.Exec(status, id)
+
+	return err
+}
+
 func GetAllBooks() ([]Book, error) {
 	query := `SELECT * FROM books`
 	rows, err := db.DB.Query(query)
@@ -91,7 +109,7 @@ func GetBookByID(id int64) (*Book, error) {
 	row := db.DB.QueryRow(query, id)
 
 	var book Book
-	err := row.Scan(&book.ID, &book.Title, &book.Genre, &book.Description, &book.Published, &book.UserID)
+	err := row.Scan(&book.ID, &book.Title, &book.Genre, &book.Description, &book.Published, &book.LendStatus, &book.UserID)
 	if err != nil {
 		return nil, err
 	}

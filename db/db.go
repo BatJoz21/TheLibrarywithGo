@@ -28,6 +28,17 @@ func InitDB() {
 }
 
 func createTables() {
+	createUserTable := `CREATE TABLE IF NOT EXISTS users (
+		id INTEGER PRIMARY KEY AUTO_INCREMENT,
+		email VARCHAR(100) NOT NULL UNIQUE,
+		password TEXT NOT NULL
+	)`
+
+	_, err := DB.Exec(createUserTable)
+	if err != nil {
+		panic(err.Error())
+	}
+
 	createBooksTable := `CREATE TABLE IF NOT EXISTS books (
 		id INTEGER PRIMARY KEY AUTO_INCREMENT,
 		title VARCHAR(150) NOT NULL,
@@ -36,9 +47,10 @@ func createTables() {
 		published DATETIME NOT NULL,
 		lend_status BOOLEAN NOT NULL,
 		user_id INTEGER
+		FOREIGN KEY(user_id) REFERENCES users(id)
 	)`
 
-	_, err := DB.Exec(createBooksTable)
+	_, err = DB.Exec(createBooksTable)
 	if err != nil {
 		panic(err.Error())
 	}
