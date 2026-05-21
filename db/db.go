@@ -10,7 +10,7 @@ var DB *sql.DB
 
 func InitDB() {
 	var err error
-	DB, err = sql.Open("mysql", "root:@tcp(localhost:3306)/library_db")
+	DB, err = sql.Open("mysql", "root:@tcp(localhost:3306)/library_db?parseTime=true")
 	if err != nil {
 		panic("Could not connect to database: " + err.Error())
 	}
@@ -20,9 +20,9 @@ func InitDB() {
 
 	err = DB.Ping()
 
-    if err != nil {
-        panic(err)
-    }
+	if err != nil {
+		panic(err)
+	}
 
 	createTables()
 }
