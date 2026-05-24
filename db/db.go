@@ -30,6 +30,8 @@ func InitDB() {
 func createTables() {
 	createUserTable := `CREATE TABLE IF NOT EXISTS users (
 		id INTEGER PRIMARY KEY AUTO_INCREMENT,
+		first_name VARCHAR(100) NOT NULL,
+		last_name VARCHAR(100) NOT NULL,
 		email VARCHAR(100) NOT NULL UNIQUE,
 		password TEXT NOT NULL
 	)`
@@ -46,7 +48,7 @@ func createTables() {
 		description TINYTEXT,
 		published DATETIME NOT NULL,
 		lend_status BOOLEAN NOT NULL,
-		user_id INTEGER
+		user_id INTEGER,
 		FOREIGN KEY(user_id) REFERENCES users(id)
 	)`
 

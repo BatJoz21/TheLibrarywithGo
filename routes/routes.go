@@ -3,7 +3,7 @@ package routes
 import "github.com/gin-gonic/gin"
 
 func RegisterRoutes(server *gin.Engine) {
-	server.POST("/signup")
+	server.POST("/signup", signup)
 
 	server.GET("/books", getBooks)
 	server.GET("/books/:id", getBook)
