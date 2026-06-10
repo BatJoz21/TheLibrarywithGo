@@ -3,8 +3,10 @@ package routes
 import (
 	"net/http"
 	"strconv"
+	"strings"
 
 	"example.com/the-library-with-go/models"
+	"example.com/the-library-with-go/utils"
 	"github.com/gin-gonic/gin"
 )
 
@@ -34,14 +36,28 @@ func getBook(context *gin.Context) {
 }
 
 func enterNewBook(context *gin.Context) {
+	token := context.Request.Header.Get("Authorization")
+	if token == "" {
+		context.JSON(http.StatusUnauthorized, gin.H{"message": "Please login first"})
+		return
+	}
+
+	token = strings.TrimPrefix(token, "Bearer ")
+
+	userID, err := utils.VerifyToken(token)
+	if err != nil {
+		context.JSON(http.StatusUnauthorized, gin.H{"message": err.Error()})
+		return
+	}
+
 	var book models.Book
-	err := context.ShouldBindJSON(&book)
+	err = context.ShouldBindJSON(&book)
 	if err != nil {
 		context.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
 		return
 	}
 
-	book.UserID = 1
+	book.UserID = userID
 	book.LendStatus = false
 
 	err = book.Save()
@@ -90,7 +106,7 @@ func updateLendStatus(context *gin.Context) {
 		return
 	}
 
-	err = models.UpdateLendStatus(true, bookID)
+	err = models.UpdateLendStatus(bookID)
 	if err != nil {
 		context.JSON(http.StatusInternalServerError, gin.H{"message": err.Error()})
 		return

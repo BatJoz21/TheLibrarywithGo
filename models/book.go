@@ -13,10 +13,10 @@ type Book struct {
 	Description string    `binding:"required"`
 	Published   time.Time `binding:"required"`
 	LendStatus  bool
-	UserID      int
+	UserID      int64
 }
 
-func (b Book) Save() error {
+func (b *Book) Save() error {
 	query := `INSERT INTO books(title, genre, description, published, lend_status, user_id) VALUES
 	(?, ?, ?, ?, ?, ?)`
 	stmt, err := db.DB.Prepare(query)
@@ -64,11 +64,12 @@ func (book Book) Delete() error {
 	return err
 }
 
-func UpdateLendStatus(status bool, id int64) error {
-	_, err := GetBookByID(id)
+func UpdateLendStatus(id int64) error {
+	book, err := GetBookByID(id)
 	if err != nil {
 		return err
 	}
+	status := !book.LendStatus
 
 	query := `UPDATE books SET lend_status = ? WHERE id = ?`
 	stmt, err := db.DB.Prepare(query)
