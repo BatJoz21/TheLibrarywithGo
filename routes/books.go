@@ -3,10 +3,8 @@ package routes
 import (
 	"net/http"
 	"strconv"
-	"strings"
 
 	"example.com/the-library-with-go/models"
-	"example.com/the-library-with-go/utils"
 	"github.com/gin-gonic/gin"
 )
 
@@ -36,27 +34,14 @@ func getBook(context *gin.Context) {
 }
 
 func enterNewBook(context *gin.Context) {
-	token := context.Request.Header.Get("Authorization")
-	if token == "" {
-		context.JSON(http.StatusUnauthorized, gin.H{"message": "Please login first"})
-		return
-	}
-
-	token = strings.TrimPrefix(token, "Bearer ")
-
-	userID, err := utils.VerifyToken(token)
-	if err != nil {
-		context.JSON(http.StatusUnauthorized, gin.H{"message": err.Error()})
-		return
-	}
-
 	var book models.Book
-	err = context.ShouldBindJSON(&book)
+	err := context.ShouldBindJSON(&book)
 	if err != nil {
 		context.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
 		return
 	}
 
+	userID := context.GetInt64("userID")
 	book.UserID = userID
 	book.LendStatus = false
 
@@ -76,9 +61,14 @@ func updateBook(context *gin.Context) {
 		return
 	}
 
-	_, err = models.GetBookByID(bookID)
+	book, err := models.GetBookByID(bookID)
+	userID := context.GetInt64("userID")
 	if err != nil {
 		context.JSON(http.StatusInternalServerError, gin.H{"message:": err.Error()})
+		return
+	}
+	if book.UserID != userID {
+		context.JSON(http.StatusUnauthorized, gin.H{"message": err.Error()})
 		return
 	}
 
@@ -123,8 +113,13 @@ func deleteBook(context *gin.Context) {
 	}
 
 	book, err := models.GetBookByID(bookID)
+	userID := context.GetInt64("userID")
 	if err != nil {
 		context.JSON(http.StatusInternalServerError, gin.H{"message:": err.Error()})
+		return
+	}
+	if book.UserID != userID {
+		context.JSON(http.StatusUnauthorized, gin.H{"message": err.Error()})
 		return
 	}
 
